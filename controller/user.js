@@ -9,6 +9,8 @@ async function handleUserSignup(req, res) {
       password: req.body.password,
     });
 
+    console.log(req.body);
+
     res.status(201).json({ msg: "new User Created", user: newUser });
   } catch (error) {
     if (error.code === 11000) {
