@@ -89,16 +89,25 @@ async function handleGetMySnippet(req, res) {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 5;
 
+    const search = req.query.search || "";
+
     const skip = (page - 1) * limit;
 
-    const snippets = await Snippet.find({ createdBy: req.user._id })
+    const query = { createdBy: req.user._id };
+
+    if (search) {
+      query.title = {
+        $regex: search,
+        $options: "i",
+      };
+    }
+
+    const snippets = await Snippet.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
 
-    const totalSnippets = await Snippet.countDocuments({
-      createdBy: req.user._id,
-    });
+    const totalSnippets = await Snippet.countDocuments(query);
     const totalPages = Math.ceil(totalSnippets / limit);
 
     return res.status(200).json({
