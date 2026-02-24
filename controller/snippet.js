@@ -8,8 +8,6 @@ function createSnippet(length = 8) {
 
 async function handleCreateSnippet(req, res) {
   try {
-    console.log(req.body);
-
     const { title, content } = req.body;
 
     if (!title || !content) {
@@ -24,6 +22,8 @@ async function handleCreateSnippet(req, res) {
       content: content,
       createdBy: req.user._id,
     });
+
+    console.log(newSnippet);
 
     return res.status(201).json({
       msg: " Snippet created successfully",
@@ -86,16 +86,29 @@ async function handleDeleteSnippet(req, res) {
 
 async function handleGetMySnippet(req, res) {
   try {
-    const userId = req.user._id;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
 
-    const mySnippet = await Snippet.find({ createdBy: userId });
+    const skip = (page - 1) * limit;
 
-    return res.json({
-      count: mySnippet.length,
-      snippets: mySnippet,
+    const snippets = await Snippet.find({ createdBy: req.user._id })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const totalSnippets = await Snippet.countDocuments({
+      createdBy: req.user._id,
+    });
+    const totalPages = Math.ceil(totalSnippets / limit);
+
+    return res.status(200).json({
+      curruntPage: page,
+      totalPages: totalPages,
+      totalSnippets: totalSnippets,
+      data: snippets,
     });
   } catch (error) {
-    console.log("Error fetching user snippets:", error);
+    console.log("Pagination error", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 }
