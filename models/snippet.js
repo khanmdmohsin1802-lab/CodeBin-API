@@ -29,6 +29,8 @@ const snippetSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
+snippetSchema.index({ createdAt: 1 }, { expireAfterSeconds: 86400 });
+
 const Snippet = mongoose.model("snippet", snippetSchema);
 
 export default Snippet;
