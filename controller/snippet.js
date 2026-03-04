@@ -122,9 +122,26 @@ async function handleGetMySnippet(req, res) {
   }
 }
 
+async function handleRole(req, res) {
+  try {
+    const allSnippets = await Snippet.find().sort({ createdAt: -1 });
+    res.json({
+      msg: "Welcome Admin",
+      total: allSnippets.length,
+      data: allSnippets,
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: "Server error",
+      msg: error.message,
+    });
+  }
+}
+
 export {
   handleCreateSnippet,
   handleGetSnippet,
   handleDeleteSnippet,
   handleGetMySnippet,
+  handleRole,
 };
