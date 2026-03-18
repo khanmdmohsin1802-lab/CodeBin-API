@@ -12,10 +12,12 @@ import logger from "./util/logger.js";
 
 const app = express();
 
-mongoose
-  .connect(process.env.MONGOURL)
-  .then(() => console.log("✅ mongoose connected"))
-  .catch((err) => console.log(err));
+if (process.env.NODE_ENV !== "test") {
+  mongoose
+    .connect(process.env.MONGOURL)
+    .then(() => console.log("✅ mongoose connected"))
+    .catch((err) => console.log(err));
+}
 
 app.use(helmet());
 
@@ -53,4 +55,10 @@ app.use("/user", userRoute);
 app.use("/snippet", snippetRoute);
 
 const PORT = process.env.PORT;
-app.listen(PORT, () => console.log("Running at port : http://localhost:8001"));
+if (process.env.NODE_ENV !== "test") {
+  app.listen(PORT, () =>
+    console.log("Running at port : http://localhost:8001"),
+  );
+}
+
+export default app;
